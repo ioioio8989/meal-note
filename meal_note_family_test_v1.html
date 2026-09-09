@@ -1,0 +1,1604 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>아이 식사 가이드 프로토타입</title>
+  <style>
+    :root{
+      --bg:#f7f5f2;
+      --card:#ffffff;
+      --soft:#fff6f1;
+      --soft2:#f4faf7;
+      --text:#2d2b2a;
+      --muted:#7e7974;
+      --line:#e7e1dc;
+      --accent:#f0b9a2;
+      --accent-deep:#c98265;
+      --shadow:0 8px 24px rgba(58,46,38,.05);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+    }
+    button,input{font:inherit}
+    .app{max-width:460px;margin:0 auto;min-height:100vh;background:#fbfaf8}
+    header{
+      position:sticky;top:0;z-index:10;
+      background:rgba(251,250,248,.94);backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:14px 18px 10px;
+    }
+    .brand{font-size:12px;letter-spacing:.18em;color:var(--muted)}
+    .title{font-size:22px;font-weight:750;margin-top:3px}
+    main{padding:16px 16px 96px}
+    .view{display:none}
+    .view.active{display:block}
+    .section{margin-bottom:16px}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:20px;
+      padding:16px;box-shadow:var(--shadow);
+    }
+    .hero{background:var(--soft)}
+    .eyebrow{font-size:11px;letter-spacing:.14em;color:var(--muted)}
+    h2{font-size:21px;margin:5px 0 6px}
+    h3{font-size:17px;margin:0 0 6px}
+    p{margin:0}
+    .muted{color:var(--muted);font-size:12px;line-height:1.6}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mini{
+      background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;
+    }
+    .mini .emoji{font-size:22px}
+    .mini strong{display:block;margin:5px 0 3px}
+    .tagrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+    .tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-size:11px}
+    .upload{
+      border:1.5px dashed #d9d1cb;border-radius:16px;padding:22px 14px;text-align:center;
+      background:#fdfcfb;cursor:pointer;
+    }
+    .upload:hover{background:#fff9f6}
+    .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .btn{
+      border:1px solid var(--line);border-radius:13px;background:#fff;padding:11px 12px;
+      cursor:pointer;color:var(--text);
+    }
+    .btn.primary{background:#fff0e9;border-color:#efd4c8;font-weight:700}
+    .btn.full{width:100%}
+    .tabs{display:flex;gap:7px;margin:12px 0}
+    .tab{
+      border:0;background:transparent;border-radius:999px;padding:7px 11px;color:var(--muted);cursor:pointer
+    }
+    .tab.active{background:#fff0e9;color:var(--text);font-weight:700}
+    .inputrow{display:flex;gap:8px}
+    input[type=text]{
+      flex:1;border:1px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff;outline:none;
+    }
+    input[type=text]:focus{border-color:#d8b4a5}
+    .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+    .chip{
+      display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);
+      background:#fff;border-radius:999px;padding:7px 9px;font-size:12px;
+    }
+    .chip button{border:0;background:none;color:#aaa;cursor:pointer;padding:0}
+    .day{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+    .dayhead{padding:13px 15px;display:flex;justify-content:space-between;align-items:center}
+    .today{background:var(--soft)}
+    .tomorrow{background:var(--soft2)}
+    .row{display:grid;grid-template-columns:78px 1fr;gap:7px;padding:10px 13px;border-top:1px solid var(--line)}
+    .label{font-size:12px;color:var(--muted);font-weight:700}
+    .food{font-size:13px;line-height:1.55}
+    .note{
+      background:var(--soft);border-radius:18px;padding:14px;font-size:13px;line-height:1.6
+    }
+    .preview{
+      margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--line);display:none
+    }
+    .preview img{display:block;width:100%}
+    .bottom{
+      position:fixed;left:50%;bottom:0;transform:translateX(-50%);
+      width:min(460px,100%);display:grid;grid-template-columns:repeat(3,1fr);
+      background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line)
+    }
+    .navbtn{
+      border:0;background:transparent;padding:12px 6px 10px;color:var(--muted);cursor:pointer;font-size:11px
+    }
+    .navbtn span{display:block;font-size:18px;margin-bottom:3px}
+    .navbtn.active{color:var(--accent-deep);font-weight:700}
+    .status{margin-top:10px;font-size:12px;color:var(--accent-deep);min-height:18px}
+    .ingredient-photo-label{display:block}
+
+    .softPicker{background:#fbf8f5;border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px}
+    .pickerTitle{font-size:14px;font-weight:750}
+    .pickerGroup{margin-top:15px}
+    .pickerLabel{font-size:12px;font-weight:750;color:#5f5a56;margin-bottom:7px}
+    .quickGrid{display:flex;flex-wrap:wrap;gap:7px}
+    .quick{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-size:12px;cursor:pointer;color:var(--text)}
+    .quick.selected{background:#fff0e9;border-color:#e9c5b5;color:#9c6049;font-weight:700}
+
+
+    .storeTab{border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 5px;color:var(--muted);cursor:pointer}
+    .storeTab.active{background:#fff0e9;border-color:#edcfc2;color:var(--text);font-weight:750}
+    .categoryBlock{padding:13px 0;border-top:1px solid var(--line)}
+    .categoryBlock:first-child{border-top:0;padding-top:0}
+    .categoryBlock:last-child{padding-bottom:0}
+    .categoryName{font-size:13px;font-weight:750;margin-bottom:8px}
+    .homeMark{display:inline-block;margin-top:5px;color:#a66b53;font-size:11px;background:#fff4ef;padding:4px 7px;border-radius:999px}
+    .flexTitle{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .futureRow{display:grid;grid-template-columns:52px 1fr;gap:11px;padding:13px 0;border-top:1px solid var(--line)}
+    .futureRow:first-of-type{margin-top:10px}
+    .futureDate{display:flex;flex-direction:column;font-size:13px}
+    .futureDate span{font-size:11px;color:var(--muted);margin-top:2px}
+    .futureRow>div:last-child{font-size:13px;line-height:1.5}
+    .consume{display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:12px}
+    .consume span{padding:9px 10px;background:#faf8f6;border-radius:12px}
+    .consume b{display:inline-block;width:42px;color:#a66b53}
+
+
+    .profileCard{background:#fff}
+
+    .profileTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .editProfile{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;color:#9a6b57;cursor:pointer;font-size:12px}
+    .profileSummary{margin-top:12px;padding:12px 13px;border:1px solid var(--line);background:#fbfaf8;border-radius:14px;font-size:13px;line-height:1.65}
+
+    .profileGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .fieldLabel{display:block;font-size:11px;color:var(--muted);margin:0 0 5px 2px}
+    .field{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px;color:var(--text)}
+    .activityBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .activity{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 5px;color:var(--muted);cursor:pointer}
+    .activity.active{background:#fff0e9;border-color:#edcfc2;color:var(--text);font-weight:700}
+    .growthStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .growthStats>div{border:1px solid var(--line);border-radius:14px;padding:11px 8px;background:#fbfaf8}
+    .growthStats span,.growthStats small{display:block;color:var(--muted);font-size:10px}
+    .growthStats strong{display:block;font-size:16px;margin:4px 0}
+    .officialLink{display:inline-block;margin-top:10px;color:#a66b53;font-size:12px;text-decoration:none}
+    .energyHero{margin-top:12px}
+    .energyHero>div:first-child{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:12px 0}
+    .energyHero>div:first-child span{font-size:12px;color:var(--muted)}
+    .energyHero>div:first-child strong{font-size:24px}
+    .compareBox{display:grid;grid-template-columns:1fr 1fr;gap:7px;background:#fff;border-radius:14px;padding:12px}
+    .compareBox b{grid-column:1/-1;font-size:12px;margin-bottom:1px}
+    .compareBox span{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:6px 8px;text-align:center}
+    .number{font-size:18px;font-weight:800;margin:5px 0 2px}
+    .dailyFoodRow{display:grid;grid-template-columns:30px 1fr;gap:8px;padding:11px 0;border-top:1px solid var(--line)}
+    .dailyFoodRow:first-of-type{margin-top:8px}
+    .dailyFoodRow span{font-size:20px}
+    .dailyFoodRow b{display:block;font-size:13px}
+    .dailyFoodRow small{display:block;color:var(--muted);font-size:11px;margin-top:2px;line-height:1.5}
+
+
+    .recipeBox{margin:0 18px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+    .recipeBox summary{cursor:pointer;padding:13px 15px;font-weight:800;list-style:none}
+    .recipeBox summary::-webkit-details-marker{display:none}
+    .recipeInner{padding:0 15px 14px}
+    .recipeNote{font-size:12px;color:#777;line-height:1.55;margin-bottom:10px}
+    .recipeDish{padding:14px 0;border-top:1px solid var(--line)}
+    .recipeDish:first-of-type{border-top:0}
+    .recipeDishHead{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+    .recipeDishHead b{font-size:16px}
+    .recipeDishHead span{font-size:12px;color:#9b7a67;white-space:nowrap}
+    .recipeMeta{font-size:12px;color:#827b75;margin-top:5px}
+    .recipeIngredients{margin-top:8px;padding:9px 10px;border-radius:10px;background:#faf7f4;font-size:12px;line-height:1.55;color:#5e5a57}
+    .recipeIngredients strong{color:#2f2d2b;margin-right:5px}
+    .recipeDish ol{margin:10px 0 0 20px;padding:0;color:#4f4b47;font-size:13px;line-height:1.75}
+    .videoBtn{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px 13px;border-radius:12px;background:#fff7f2;border:1px solid #ead8cc;color:#3c3834;text-decoration:none}
+    .videoBtn b{display:block;font-size:13px;margin-bottom:2px}
+    .videoBtn small{display:block;font-size:11px;line-height:1.45;color:#8a7467}
+    .videoIcon{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#e7c1ad;font-size:12px;flex:0 0 30px}
+    .videoBtn.searchOnly{background:#fafafa;border-color:#e6e3e0}
+    .videoBtn.searchOnly .videoIcon{background:#ece9e6}
+
+    .videoRule{display:inline-block;margin-top:5px;color:#9a7968}
+
+
+    .weeklyCard{margin:0 0 22px;padding:20px 18px;border:1px solid var(--line);border-radius:22px;background:#fff}
+    .weeklyEyebrow{font-size:11px;letter-spacing:.14em;color:#8b8179;margin-bottom:7px}
+    .weeklyTitle{font-size:21px;font-weight:800;line-height:1.4;margin-bottom:8px}
+    .weeklySub{font-size:13px;color:#6c6763;line-height:1.6;margin-bottom:18px}
+    .nutriRow{margin:14px 0}
+    .nutriTop{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+    .nutriTop span{color:#7a746f;font-size:12px}
+    .nutriTrack{height:9px;background:#f1ece8;border-radius:999px;overflow:hidden;margin:7px 0 5px}
+    .nutriFill{height:100%;background:#d9b7a4;border-radius:999px}
+    .nutriDesc{font-size:12px;color:#8a8580}
+    .weeklyReassure{margin-top:18px;padding:14px 15px;border-radius:14px;background:#fbf6f1;font-size:14px;line-height:1.6;color:#5f574f}
+
+    .reassureBox{margin:14px 18px 18px;padding:16px 17px;border-radius:16px;background:#fbf6f1;border:1px solid #eadfd6}
+    .reassureEyebrow{font-size:11px;letter-spacing:.13em;color:#9b7a67;margin-bottom:6px}
+    .reassureTitle{font-size:18px;font-weight:800;margin-bottom:7px}
+    .reassureBody{font-size:14px;line-height:1.65;color:#5e5a57}
+    .manualMeal{margin-top:14px;padding-top:4px;border-top:1px solid var(--line)}
+    .mealText{width:100%;min-height:78px;resize:vertical;border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px 11px;color:var(--text);font:inherit;line-height:1.55}
+    .missingMeal{display:inline-block;background:#f6f3ef;color:#8b817a;border-radius:999px;padding:5px 8px;font-size:11px}
+    .ingredientUsed{display:inline-block;margin-top:6px;color:#a66b53;background:#fff3ed;border-radius:999px;padding:5px 8px;font-size:11px}
+
+    @media (max-width:360px){.grid2{grid-template-columns:1fr}.row{grid-template-columns:70px 1fr}}
+  </style>
+
+<style>
+.testerWelcome{position:fixed;inset:0;z-index:99999;background:rgba(45,42,39,.38);display:flex;align-items:flex-end;justify-content:center;padding:0}
+.testerSheet{width:min(100%,520px);background:#fffdfa;border-radius:24px 24px 0 0;padding:30px 22px 28px;box-shadow:0 -12px 40px rgba(0,0,0,.12)}
+.testerBadge{font-size:10px;letter-spacing:.12em;color:#a17d6b;font-weight:700;margin-bottom:12px}
+.testerSheet h2{font-size:25px;line-height:1.35;margin:0 0 12px;color:#302d2a}
+.testerSheet>p{font-size:14px;line-height:1.7;color:#706a65;margin:0 0 20px}
+.testerSteps{display:grid;gap:9px;margin:0 0 18px}
+.testerSteps div{display:flex;align-items:center;gap:10px;padding:11px 12px;background:#f7f4f1;border-radius:12px;font-size:13px;color:#4e4945}
+.testerSteps b{display:flex;width:23px;height:23px;border-radius:50%;align-items:center;justify-content:center;background:#ead4c8;color:#5f4c42;font-size:11px}
+.testerPrivacy{font-size:11px;line-height:1.55;color:#948b84;margin-bottom:16px}
+.testerStart{width:100%;border:0;border-radius:14px;padding:15px;background:#38332f;color:white;font-size:15px;font-weight:700}
+.testFeedback{margin:18px 16px 92px;padding:18px;border:1px solid #e6ded8;border-radius:16px;background:#fffdfa}
+.testFeedback h3{margin:0 0 6px;font-size:15px}.testFeedback p{margin:0;font-size:12px;line-height:1.6;color:#7c746e}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">MEAL NOTE</div>
+    <div class="title" id="headerTitle">우리 아이 하루 식사 기준</div>
+  </header>
+
+  <main>
+    <!-- GUIDE -->
+    <section class="view active" id="guide">
+      <div class="section card profileCard">
+        <div class="profileTop">
+          <div>
+            <div class="eyebrow">MY CHILD</div>
+            <h2 id="profileHeadline">우리 아이 기준으로 볼게요</h2>
+            <p class="muted" id="profileIntro">생년월일·키·체중·활동량만 넣으면 기본 기준과 함께 보여줘요.</p>
+          </div>
+          <button class="editProfile" id="editProfile" style="display:none">수정</button>
+        </div>
+
+        <div id="profileSummary" class="profileSummary" style="display:none"></div>
+
+        <div id="profileForm">
+        <div class="profileGrid" style="margin-top:14px">
+          <div>
+            <label class="fieldLabel">성별</label>
+            <select id="childSex" class="field">
+              <option value="남자">남아</option>
+              <option value="여자">여아</option>
+            </select>
+          </div>
+          <div>
+            <label class="fieldLabel">생년월일</label>
+            <input id="childBirth" class="field" type="date">
+          </div>
+          <div>
+            <label class="fieldLabel">키 (cm)</label>
+            <input id="childHeight" class="field" type="number" step="0.1" placeholder="예: 112.0">
+          </div>
+          <div>
+            <label class="fieldLabel">체중 (kg)</label>
+            <input id="childWeight" class="field" type="number" step="0.1" placeholder="예: 18.0">
+          </div>
+        </div>
+
+        <div style="margin-top:11px">
+          <label class="fieldLabel">평소 활동량</label>
+          <div class="activityBtns">
+            <button class="activity active" data-act="보통">보통</button>
+            <button class="activity" data-act="적음">적은 편</button>
+            <button class="activity" data-act="많음">많은 편</button>
+          </div>
+        </div>
+        <button class="btn primary full" id="saveProfile" style="margin-top:12px">우리 아이 정보 적용</button>
+        <div class="status" id="profileStatus"></div>
+        </div>
+      </div>
+
+      <div class="section card growthCard">
+        <div class="flexTitle">
+          <div><div class="eyebrow">GROWTH POSITION</div><h3 style="margin-top:4px">지금 어디쯤 있을까?</h3></div>
+          <span class="muted" id="childAgeLabel">정보를 입력해 주세요</span>
+        </div>
+        <div class="growthStats" style="margin-top:13px">
+          <div><span>키</span><strong id="heightStat">—</strong><small id="heightPct">공식 백분위 확인</small></div>
+          <div><span>체중</span><strong id="weightStat">—</strong><small id="weightPct">공식 백분위 확인</small></div>
+          <div><span>BMI</span><strong id="bmiStat">—</strong><small id="bmiPct">키·체중이 같으면 BMI 값도 같아요</small></div>
+        </div>
+        <p class="muted" style="margin-top:12px">BMI 숫자 자체는 키와 체중으로 계산하므로 나이·성별을 바꿔도 키·체중이 같으면 그대로예요. 대신 성장에서 중요한 것은 같은 BMI가 또래에서 어느 위치인지 보는 ‘BMI 백분위’예요. 이 프로토타입은 그 부분을 임의 추정하지 않고 공식 계산기로 연결해요.</p>
+        <a class="officialLink" href="https://knhanes.kdca.go.kr/knhanes/grtcht/main.do" target="_blank" rel="noopener">질병관리청 성장상태 측정계산기 ↗</a>
+      </div>
+
+      <div class="section card hero">
+        <div class="eyebrow" id="guideEyebrow">DAILY GUIDE · AGE 6–8</div>
+        <h2 id="guideTitle">7세 남아 하루 기준</h2>
+        <div class="energyHero">
+          <div><span>하루 에너지 필요추정량</span><strong id="energyValue">약 1,700 kcal</strong></div>
+          <div class="compareBox">
+            <b>엄마 음식으로 감 잡아보면</b>
+            <span id="compareKimbap">김밥 약 4줄</span>
+            <span id="compareCake">조각 케이크 약 5개</span>
+            <span id="compareLatte">카페라테 약 8잔</span>
+          </div>
+        </div>
+        <p class="muted" id="kdriAgeNote" style="margin-top:10px">화면의 ‘7세’는 부모가 익숙하게 보는 나이이고, 영양 기준은 실제 만 나이에 맞는 KDRI 연령구간을 적용해요.</p>
+        <p class="muted" style="margin-top:6px">비교 음식 열량은 제품·크기에 따라 크게 달라지는 ‘감 잡기용’ 예시예요.</p>
+      </div>
+
+      <div class="section grid2 nutrientGrid">
+        <div class="mini"><div class="emoji">🥩</div><strong>단백질</strong><div class="number" id="proteinValue">35 g/일</div><div class="muted">권장섭취량</div></div>
+        <div class="mini"><div class="emoji">🥛</div><strong>칼슘</strong><div class="number" id="calciumValue">700 mg/일</div><div class="muted">권장섭취량</div></div>
+        <div class="mini"><div class="emoji">🍚</div><strong>탄수화물</strong><div class="number" id="carbRange">약 213–276 g</div><div class="muted">에너지의 50–65% 환산</div></div>
+        <div class="mini"><div class="emoji">🥑</div><strong>지방</strong><div class="number" id="fatRange">약 28–57 g</div><div class="muted">에너지의 15–30% 환산</div></div>
+      </div>
+
+      <div class="section card">
+        <h3>숫자를 식사로 바꿔보면</h3>
+        <div class="dailyFoodRow"><span>🍚</span><div><b>밥·빵·면</b><small>세 끼에 나눠 기본 에너지 채우기</small></div></div>
+        <div class="dailyFoodRow"><span>🥩</span><div><b>고기·생선·달걀·두부</b><small>한 가지에 몰지 말고 끼니마다 나눠 먹기</small></div></div>
+        <div class="dailyFoodRow"><span>🥛</span><div><b>우유·요구르트·치즈</b><small>칼슘은 하루 전체와 주간 흐름으로 확인</small></div></div>
+        <div class="dailyFoodRow"><span>🍎</span><div><b>채소·과일</b><small>한 번에 많이보다 여러 끼에서 조금씩 만나기</small></div></div>
+      </div>
+
+      <div class="note">기준 숫자를 ‘매일 정확히 맞혀야 하는 목표’로 쓰기보다, 오늘과 이번 주에 어느 쪽이 비었는지 찾는 기준으로 써요.</div>
+      <p class="muted" style="margin:10px 4px 0">기준: 보건복지부·한국영양학회 2025 한국인 영양소 섭취기준. 성장 위치는 질병관리청 2017 소아청소년 성장도표 기준을 연결하는 방향.</p>
+    </section>
+
+    <!-- INPUT -->
+    <section class="view" id="input">
+      <div class="section">
+        <div class="eyebrow">MEAL SETUP</div>
+        <h2>우리 아이 식사 준비</h2>
+        <p class="muted">유치원에서 먹는 것과 집에 있는 재료만 알려주세요.</p>
+      </div>
+
+      <div class="section card">
+        <h3>🏫 유치원 식단</h3>
+        <p class="muted">식단표 사진이나 캡처 이미지를 올려주세요.</p>
+        <label class="upload" for="mealFile" style="display:block;margin-top:13px">
+          <div style="font-size:26px">＋</div>
+          <strong>식단표 사진 올리기</strong>
+          <div class="muted" style="margin-top:4px">사진 · 캡처 이미지</div>
+        </label>
+        <input id="mealFile" type="file" accept="image/*" hidden />
+        <div class="preview" id="mealPreview"><img id="mealPreviewImg" alt="식단표 미리보기"></div>
+        <div class="status" id="mealStatus"></div>
+
+        <div class="manualMeal">
+          <div class="pickerLabel" style="margin-top:16px">식단 내용을 직접 넣거나 수정할 수 있어요</div>
+          <label class="fieldLabel">오늘 유치원 식단</label>
+          <textarea id="schoolToday" class="mealText" placeholder="예: 오전 요구르트 / 점심 쌀밥, 소고기탕국... / 오후 우유"></textarea>
+          <label class="fieldLabel" style="margin-top:10px">내일 유치원 식단</label>
+          <textarea id="schoolTomorrow" class="mealText" placeholder="예: 오전 시리얼·우유 / 점심 흑미밥, 시락국..."></textarea>
+          <button class="btn primary full" id="saveSchoolMeals" style="margin-top:10px">유치원 식단 저장</button>
+        </div>
+
+        <div class="note" style="margin-top:10px">
+          지금은 사진 미리보기 + 직접 입력까지 작동해요. 실제 자동 식단 인식은 AI/API 연결 단계에서 붙일 수 있어요.
+        </div>
+      </div>
+
+      <div class="section card">
+        <h3>🏠 우리집에 있는 재료</h3>
+        <p class="muted">먼저 어디에 있는지 골라보세요. 자주 쓰는 재료만 추려뒀어요.</p>
+
+        <div class="storeTabs" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px">
+          <button class="storeTab active" data-store="냉장">🧊 냉장</button>
+          <button class="storeTab" data-store="냉동">❄️ 냉동</button>
+          <button class="storeTab" data-store="상온">🥫 상온</button>
+        </div>
+
+        <div id="guidedPicker" class="softPicker"></div>
+
+        <div style="margin-top:15px">
+          <div class="pickerLabel">목록에 없어요</div>
+          <div class="inputrow">
+            <input id="ingredientInput" type="text" placeholder="직접 입력해도 돼요" />
+            <button class="btn primary" id="addIngredient">추가</button>
+          </div>
+        </div>
+
+        <div class="btnrow">
+          <label class="btn ingredient-photo-label" for="ingredientFile">📷 사진으로 추가</label>
+          <button class="btn" id="clearIngredients">전체 지우기</button>
+        </div>
+        <input id="ingredientFile" type="file" accept="image/*" hidden />
+        <div class="preview" id="ingredientPreview"><img id="ingredientPreviewImg" alt="재료 사진 미리보기"></div>
+
+        <div style="margin-top:16px">
+          <div class="pickerLabel">지금 우리집에 있는 것 <span id="ingredientCount" style="color:var(--accent-deep)"></span></div>
+          <div class="chips" id="ingredientChips"></div>
+        </div>
+        <div class="status" id="ingredientStatus"></div>
+      </div>
+    </section>
+
+    <!-- PLAN -->
+    <section class="view" id="plan">
+      <div class="section">
+        <div class="eyebrow">5 DAY MEAL FLOW</div>
+        <h2>오늘부터 5일 식단</h2>
+        <p class="muted">식사 플랜은 자세히, 그 이후 3일은 집에 있는 재료로 가볍게 미리 봐요.</p>
+      </div>
+
+      <div id="planNotice" class="section note"></div>
+      <div id="todayPlan"></div>
+      <div id="tomorrowPlan"></div>
+
+      <div class="section card">
+        <div class="flexTitle">
+          <div><div class="eyebrow">NEXT 3 DAYS</div><h3 style="margin-top:4px">그 이후는 이렇게 이어가요</h3></div>
+          <span class="muted">밥 · 국 · 반찬 구성으로</span>
+        </div>
+        <div id="futurePlans"></div>
+      </div>
+
+      <div id="weeklyNutrition"></div>
+
+      <div class="section card">
+        <h3 style="font-size:15px">🧺 재료 소진 순서</h3>
+        <div class="consume" id="consumeOrder"></div>
+      </div>
+
+      <div class="section grid2">
+        <div class="card"><h3 style="font-size:15px">🌈 이번 흐름</h3><p class="muted" id="flowSummary">입력된 식단과 재료를 기준으로 조정해요.</p></div>
+        <div class="card"><h3 style="font-size:15px">🛒 장보기</h3><p class="muted" id="shoppingSummary">집에 없는 것만 추려볼게요.</p></div>
+      </div>
+    </section>
+  </main>
+
+  
+<div class="testFeedback">
+  <h3>써보니 어땠나요?</h3>
+  <p>헷갈렸던 곳, 필요 없었던 기능, “이건 있었으면 좋겠다” 싶은 점을 편하게 알려주세요. 가족 테스트에서는 좋은 점보다 <b>막힌 순간</b>을 찾는 게 더 중요해요.</p>
+</div>
+
+<nav class="bottom">
+    <button class="navbtn active" data-view="guide"><span>🌱</span>하루 기준</button>
+    <button class="navbtn" data-view="input"><span>✏️</span>식단·재료 입력</button>
+    <button class="navbtn" data-view="plan"><span>📅</span>식사 플랜</button>
+  </nav>
+</div>
+
+<script>
+  const views = document.querySelectorAll('.view');
+  const navs = document.querySelectorAll('.navbtn');
+  const headerTitle = document.getElementById('headerTitle');
+  const titles = {
+    guide:'우리 아이 하루 식사 기준',
+    input:'식단 · 우리집 재료',
+    plan:'오늘 · 내일 식단'
+  };
+
+  navs.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      navs.forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      views.forEach(v=>v.classList.remove('active'));
+      document.getElementById(btn.dataset.view).classList.add('active');
+      headerTitle.textContent = btn.dataset.view==='guide' ? currentGuideHeader() : titles[btn.dataset.view];
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+
+  function previewFile(input, boxId, imgId, statusId, text){
+    const file=input.files?.[0];
+    if(!file) return;
+    const url=URL.createObjectURL(file);
+    document.getElementById(imgId).src=url;
+    document.getElementById(boxId).style.display='block';
+    if(statusId) document.getElementById(statusId).textContent=text;
+  }
+
+
+  let childActivity='보통';
+
+  // 2025 KDRI prototype values used here:
+  // 3–5 y: energy 1400 kcal, protein 25 g, calcium 550 mg
+  // 6–8 y: energy male 1700 / female 1500 kcal, protein 35 g
+  // Calcium is displayed as 700 mg for 6–8 y in this prototype.
+  const kdri = {
+    "3-5": {
+      male:{energy:1400, protein:25, calcium:550},
+      female:{energy:1400, protein:25, calcium:550}
+    },
+    "6-8": {
+      male:{energy:1700, protein:35, calcium:700},
+      female:{energy:1500, protein:35, calcium:700}
+    }
+  };
+
+  document.querySelectorAll('.activity').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.activity').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      childActivity=btn.dataset.act;
+    });
+  });
+
+  const savedProfile=JSON.parse(localStorage.getItem('mealnote.childProfile') || 'null');
+  if(savedProfile){
+    document.getElementById('childSex').value=savedProfile.sex || '남자';
+    document.getElementById('childBirth').value=savedProfile.birth || '';
+    document.getElementById('childHeight').value=savedProfile.height || '';
+    document.getElementById('childWeight').value=savedProfile.weight || '';
+    childActivity=savedProfile.activity || '보통';
+    document.querySelectorAll('.activity').forEach(x=>x.classList.toggle('active',x.dataset.act===childActivity));
+  }
+
+  function getAge(){
+    const birth=document.getElementById('childBirth').value;
+    if(!birth) return null;
+    const b=new Date(birth+'T00:00:00');
+    const now=new Date();
+    let months=(now.getFullYear()-b.getFullYear())*12+(now.getMonth()-b.getMonth());
+    if(now.getDate()<b.getDate()) months--;
+    if(months<0) return null;
+    return {months, years:Math.floor(months/12), rem:months%12};
+  }
+
+  function nutritionGroup(ageYears){
+    if(ageYears>=3 && ageYears<=5) return "3-5";
+    if(ageYears>=6 && ageYears<=8) return "6-8";
+    return null;
+  }
+
+  function displayAge(){
+    const birth=document.getElementById('childBirth')?.value;
+    if(!birth) return null;
+    const y=parseInt(birth.slice(0,4),10);
+    return new Date().getFullYear()-y+1;
+  }
+
+  function currentGuideHeader(){
+    const age=getAge();
+    const shown=displayAge();
+    const sex=document.getElementById('childSex')?.value;
+    if(!age || !shown) return '우리 아이 하루 식사 기준';
+    const sexLabel=sex==='여자'?'여아':'남아';
+    return `${shown}세 ${sexLabel} 하루 식사 기준`;
+  }
+
+  function updateNutritionGuide(){
+    const age=getAge();
+    const shown=displayAge();
+    const sex=document.getElementById('childSex').value;
+    if(!age || !shown) return;
+    const group=nutritionGroup(age.years);
+    const sexKey=sex==='여자'?'female':'male';
+    const sexLabel=sex==='여자'?'여아':'남아';
+
+    document.getElementById('guideTitle').textContent=`${shown}세 ${sexLabel} 하루 기준`;
+    document.getElementById('guideEyebrow').textContent =
+      group ? `DAILY GUIDE · KDRI 만 ${group}세 적용` : `DAILY GUIDE · 만 ${age.years}세 기준`;
+    const note=document.getElementById('kdriAgeNote');
+    if(note) note.textContent=`${shown}세로 보여드리되, 영양 수치는 실제 만 ${age.years}세 ${age.rem}개월에 해당하는 KDRI ${group ? '만 '+group+'세' : '연령'} 기준을 적용해요.`;
+    headerTitle.textContent=currentGuideHeader();
+
+    if(!group || !kdri[group]){
+      document.getElementById('energyValue').textContent='연령 기준 확장 예정';
+      return;
+    }
+
+    const d=kdri[group][sexKey];
+    document.getElementById('energyValue').textContent=`약 ${d.energy.toLocaleString()} kcal`;
+    document.getElementById('proteinValue').textContent=`${d.protein} g/일`;
+    document.getElementById('calciumValue').textContent=`${d.calcium} mg/일`;
+
+    const carbLow=Math.round(d.energy*.50/4), carbHigh=Math.round(d.energy*.65/4);
+    const fatLow=Math.round(d.energy*.15/9), fatHigh=Math.round(d.energy*.30/9);
+    document.getElementById('carbRange').textContent=`약 ${carbLow}–${carbHigh} g`;
+    document.getElementById('fatRange').textContent=`약 ${fatLow}–${fatHigh} g`;
+
+    document.getElementById('compareKimbap').textContent=`김밥 약 ${(d.energy/430).toFixed(1)}줄`;
+    document.getElementById('compareCake').textContent=`조각 케이크 약 ${(d.energy/330).toFixed(1)}개`;
+    document.getElementById('compareLatte').textContent=`카페라테 약 ${(d.energy/200).toFixed(1)}잔`;
+  }
+
+  function updateProfileSummary(){
+    const age=getAge();
+    const h=parseFloat(document.getElementById('childHeight').value);
+    const w=parseFloat(document.getElementById('childWeight').value);
+    const sex=document.getElementById('childSex').value;
+    document.getElementById('heightStat').textContent=isFinite(h)?`${h.toFixed(1)} cm`:'—';
+    document.getElementById('weightStat').textContent=isFinite(w)?`${w.toFixed(1)} kg`:'—';
+
+    let bmi=null;
+    if(isFinite(h)&&isFinite(w)&&h>0){
+      bmi=w/((h/100)**2);
+      document.getElementById('bmiStat').textContent=bmi.toFixed(1);
+    }else document.getElementById('bmiStat').textContent='—';
+
+    if(age){
+      document.getElementById('childAgeLabel').textContent=`${displayAge()}세 · 만 ${age.years}세 ${age.rem}개월`;
+      const sexEmoji=sex==='여자'?'👧':'👦';
+      const shown=displayAge();
+      const parts=[`${sexEmoji} ${shown}세 (만 ${age.years}세 ${age.rem}개월)`];
+      if(isFinite(h)) parts.push(`${h.toFixed(1)}cm`);
+      if(isFinite(w)) parts.push(`${w.toFixed(1)}kg`);
+      if(bmi) parts.push(`BMI ${bmi.toFixed(1)}`);
+      parts.push(`활동량 ${childActivity}`);
+      document.getElementById('profileSummary').textContent=parts.join(' · ');
+    }
+    updateNutritionGuide();
+    if(document.getElementById('guide').classList.contains('active')){
+      headerTitle.textContent=currentGuideHeader();
+    }
+  }
+
+  function collapseProfile(){
+    document.getElementById('profileForm').style.display='none';
+    document.getElementById('profileSummary').style.display='block';
+    document.getElementById('editProfile').style.display='block';
+    document.getElementById('profileHeadline').textContent='우리 아이';
+    document.getElementById('profileIntro').textContent='저장된 정보를 기준으로 아래 내용을 보여드려요.';
+  }
+
+  function expandProfile(){
+    document.getElementById('profileForm').style.display='block';
+    document.getElementById('profileSummary').style.display='none';
+    document.getElementById('editProfile').style.display='none';
+    document.getElementById('profileHeadline').textContent='우리 아이 기준으로 볼게요';
+    document.getElementById('profileIntro').textContent='생년월일·키·체중·활동량만 넣으면 기본 기준과 함께 보여줘요.';
+  }
+
+  document.getElementById('editProfile').addEventListener('click',expandProfile);
+
+  document.getElementById('saveProfile').addEventListener('click',()=>{
+    const profile={
+      sex:document.getElementById('childSex').value,
+      birth:document.getElementById('childBirth').value,
+      height:document.getElementById('childHeight').value,
+      weight:document.getElementById('childWeight').value,
+      activity:childActivity
+    };
+    localStorage.setItem('mealnote.childProfile',JSON.stringify(profile));
+    updateProfileSummary();
+    document.getElementById('profileStatus').textContent='우리 아이 정보를 적용했어요.';
+    collapseProfile();
+  });
+
+  ['childBirth','childHeight','childWeight','childSex'].forEach(id=>
+    document.getElementById(id).addEventListener('input',updateProfileSummary)
+  );
+
+  updateProfileSummary();
+  if(savedProfile && savedProfile.birth) collapseProfile();
+
+
+  let schoolMeals={today:'',tomorrow:'',photo:false};
+  try{
+    const savedSchool=JSON.parse(localStorage.getItem('mealnote.schoolMeals') || 'null');
+    if(savedSchool) schoolMeals={...schoolMeals,...savedSchool};
+  }catch(e){}
+
+  const schoolTodayEl=document.getElementById('schoolToday');
+  const schoolTomorrowEl=document.getElementById('schoolTomorrow');
+  if(schoolTodayEl) schoolTodayEl.value=schoolMeals.today || '';
+  if(schoolTomorrowEl) schoolTomorrowEl.value=schoolMeals.tomorrow || '';
+
+  const saveSchoolBtn=document.getElementById('saveSchoolMeals');
+  if(saveSchoolBtn){
+    saveSchoolBtn.addEventListener('click',()=>{
+      schoolMeals.today=schoolTodayEl.value.trim();
+      schoolMeals.tomorrow=schoolTomorrowEl.value.trim();
+      localStorage.setItem('mealnote.schoolMeals',JSON.stringify(schoolMeals));
+      document.getElementById('mealStatus').textContent='유치원 식단을 저장했어요. 식사 플랜 추천에 바로 반영돼요.';
+      generatePlans();
+    });
+  }
+
+  document.getElementById('mealFile').addEventListener('change', e=>{
+    previewFile(e.target,'mealPreview','mealPreviewImg','mealStatus','식단표 사진이 등록됐어요. 이 프로토타입에서는 자동 인식 대신 아래 칸에 내용을 확인·입력해 주세요.');
+    schoolMeals.photo=!!e.target.files?.[0];
+    localStorage.setItem('mealnote.schoolMeals',JSON.stringify(schoolMeals));
+    generatePlans();
+  });
+
+  document.getElementById('ingredientFile').addEventListener('change', e=>{
+    previewFile(e.target,'ingredientPreview','ingredientPreviewImg','ingredientStatus','재료 사진이 등록됐어요. 실제 버전에서는 AI가 사진 속 재료 후보를 뽑아주게 만들 수 있어요.');
+  });
+
+  const ingredientCatalog = {
+    "냉장": {
+      "🥩 고기": ["국거리","불고기용 소고기","삼겹살","목살","다진 돼지고기","닭고기"],
+      "🥚 달걀·두부": ["달걀","두부","유부"],
+      "🥬 채소": ["애호박","양파","당근","버섯","대파","브로콜리","콩나물","숙주","깻잎"],
+      "🥛 유제품": ["우유","요구르트","치즈"],
+      "🍱 반찬·기타": ["김치","햄","어묵","맛살"]
+    },
+    "냉동": {
+      "🥩 고기": ["국거리","갈비","삼겹살","항정살","대패삼겹","닭고기"],
+      "🐟 생선·해산물": ["가자미","갈치","고등어","오징어","새우"],
+      "🍗 간편식": ["치킨","핫도그","피자","만두","돈까스","떡갈비"],
+      "🍚 밥·면": ["냉동밥","떡","우동면"]
+    },
+    "상온": {
+      "🍚 밥·면": ["쌀","잡곡","국수","파스타","라면"],
+      "🥫 통조림": ["참치캔","야채참치","스팸","옥수수캔"],
+      "🐟 건어물": ["잔멸치","김","미역"],
+      "🥔 자주 두는 채소": ["감자","고구마","양파"],
+      "🥣 아침·간식": ["시리얼","식빵","김가루"]
+    }
+  };
+
+  let ingredients=[];
+  try{
+    const migratedIngredients=JSON.parse(localStorage.getItem('mealnote.ingredients.v3') || 'null');
+    if(Array.isArray(migratedIngredients)) ingredients=migratedIngredients;
+  }catch(e){
+    ingredients=[];
+  }
+  let currentStore='냉장';
+
+  const chips=document.getElementById('ingredientChips');
+  const input=document.getElementById('ingredientInput');
+  const picker=document.getElementById('guidedPicker');
+
+  function save(){ localStorage.setItem('mealnote.ingredients.v3',JSON.stringify(ingredients)); if(typeof generatePlans==='function') generatePlans(); }
+
+  function renderPicker(){
+    picker.innerHTML='';
+    Object.entries(ingredientCatalog[currentStore]).forEach(([category,items])=>{
+      const block=document.createElement('div');
+      block.className='categoryBlock';
+      const title=document.createElement('div');
+      title.className='categoryName';
+      title.textContent=category;
+      const grid=document.createElement('div');
+      grid.className='quickGrid';
+      items.forEach(name=>{
+        const btn=document.createElement('button');
+        btn.className='quick';
+        btn.textContent=name;
+        const exists=ingredients.some(i=>i.name===name && i.cat===currentStore);
+        if(exists) btn.classList.add('selected');
+        btn.onclick=()=>{
+          const existing=ingredients.find(i=>i.name===name && i.cat===currentStore);
+          if(existing){
+            ingredients=ingredients.filter(i=>i.id!==existing.id);
+            const elsewhere=[...new Set(ingredients.filter(i=>i.name===name).map(i=>i.cat))];
+            document.getElementById('ingredientStatus').textContent=
+              elsewhere.length
+              ? `${currentStore}의 ${name}은 뺐어요. 하지만 ${elsewhere.join('·')}에도 ${name}이 등록되어 있어 추천에는 계속 사용할 수 있어요.`
+              : `${name}을(를) 우리집 재료에서 완전히 뺐어요.`;
+          }else{
+            ingredients.push({id:Date.now()+Math.random(),name,cat:currentStore});
+            document.getElementById('ingredientStatus').textContent=`${name} 있어요 ✓`;
+          }
+          save(); render(); renderPicker();
+        };
+        grid.appendChild(btn);
+      });
+      block.append(title,grid);
+      picker.appendChild(block);
+    });
+  }
+
+  function render(){
+    chips.innerHTML='';
+    ingredients.forEach(item=>{
+      const span=document.createElement('span');
+      span.className='chip';
+      span.innerHTML=`${item.name} <small style="color:#aaa">${item.cat}</small> <button aria-label="삭제">×</button>`;
+      span.querySelector('button').onclick=()=>{
+        ingredients=ingredients.filter(x=>x.id!==item.id);
+        save(); render(); renderPicker();
+      };
+      chips.appendChild(span);
+    });
+    if(!chips.children.length) chips.innerHTML='<span class="muted">등록된 재료가 없어요.</span>';
+    document.getElementById('ingredientCount').textContent=`${ingredients.length}개`;
+  }
+
+  document.querySelectorAll('.storeTab').forEach(tab=>{
+    tab.onclick=()=>{
+      document.querySelectorAll('.storeTab').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active');
+      currentStore=tab.dataset.store;
+      renderPicker();
+    };
+  });
+
+  function addIngredient(){
+    const name=input.value.trim();
+    if(!name) return;
+    if(!ingredients.some(i=>i.name===name && i.cat===currentStore)){
+      ingredients.push({id:Date.now(),name,cat:currentStore});
+    }
+    input.value='';
+    save(); render(); renderPicker();
+    document.getElementById('ingredientStatus').textContent=`${name}을(를) ${currentStore}에 추가했어요.`;
+  }
+  document.getElementById('addIngredient').onclick=addIngredient;
+  input.addEventListener('keydown',e=>{if(e.key==='Enter') addIngredient();});
+  document.getElementById('clearIngredients').onclick=()=>{
+    if(confirm('등록된 재료를 모두 지울까요?')){
+      ingredients=[]; save(); render(); renderPicker();
+      document.getElementById('ingredientStatus').textContent='재료 목록을 비웠어요.';
+    }
+  };
+
+
+  function names(){ return ingredients.map(x=>x.name); }
+  function has(name){ return names().includes(name); }
+  function locationsOf(name){ return ingredients.filter(x=>x.name===name).map(x=>x.cat); }
+  function ingredientLabel(name){
+    const locs=[...new Set(locationsOf(name))];
+    return locs.length ? `${locs.join('/')} ${name}` : name;
+  }
+
+  // Common Korean home meals. A recipe is recommended only when its main
+  // ingredients are actually registered at home. Optional ingredients raise its score.
+  const recipeLibrary = [
+    {
+      title:'쌀밥 · 소고기미역국 · 달걀말이 · 브로콜리무침',
+      req:['국거리','미역','달걀','브로콜리'],
+      opt:['대파','당근'],
+      protein:'beef', priority:'fridge',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 감자된장국 · 돼지고기숙주볶음 · 깻잎',
+      req:['감자','숙주'],
+      any:['삼겹살','대패삼겹','항정살'],
+      opt:['깻잎','양파','대파'],
+      protein:'pork', priority:'fridge',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 두부애호박된장국 · 소불고기 · 버섯볶음',
+      req:['불고기용 소고기','두부','애호박'],
+      opt:['버섯','양파','당근'],
+      protein:'beef', priority:'fridge',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 콩나물국 · 돼지고기애호박볶음 · 김',
+      req:['다진 돼지고기','애호박','콩나물'],
+      opt:['김','양파','대파'],
+      protein:'pork', priority:'fridge',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 감자국 · 닭고기간장조림 · 브로콜리무침',
+      req:['닭고기','감자'],
+      opt:['브로콜리','당근','양파','대파'],
+      protein:'chicken', priority:'fridge',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 두부국 · 고등어구이 · 콩나물무침',
+      req:['고등어','두부','콩나물'],
+      opt:['대파'],
+      protein:'fish', priority:'freezer',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 감자국 · 갈치구이 · 애호박볶음',
+      req:['갈치','감자','애호박'],
+      opt:['대파','양파'],
+      protein:'fish', priority:'freezer',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 두부된장국 · 가자미구이 · 브로콜리무침',
+      req:['가자미','두부','브로콜리'],
+      opt:['애호박','대파'],
+      protein:'fish', priority:'freezer',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 미역국 · 오징어애호박전 · 콩나물무침',
+      req:['오징어','애호박','미역'],
+      opt:['달걀','콩나물'],
+      protein:'seafood', priority:'freezer',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 달걀국 · 새우채소볶음 · 김',
+      req:['새우','달걀'],
+      opt:['당근','양파','대파','김'],
+      protein:'seafood', priority:'freezer',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 어묵국 · 두부부침 · 콩나물무침',
+      req:['어묵','두부','콩나물'],
+      opt:['대파','양파'],
+      protein:'tofu', priority:'fridge',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 유부된장국 · 달걀말이 · 애호박볶음',
+      req:['유부','달걀','애호박'],
+      opt:['대파','양파'],
+      protein:'egg', priority:'fridge',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 감자국 · 떡갈비 · 버섯볶음',
+      req:['떡갈비','감자','버섯'],
+      opt:['양파','대파'],
+      protein:'easy', priority:'freezer',
+      groups:['grain','protein','vegetable']
+    },
+    {
+      title:'쌀밥 · 만두국 · 달걀찜 · 김',
+      req:['만두','달걀'],
+      opt:['김','대파'],
+      protein:'easy', priority:'freezer',
+      groups:['grain','protein']
+    }
+  ];
+
+  const breakfastLibrary = [
+    {title:'햄 주먹밥 + 우유/요구르트 + 과일', req:['햄','쌀'], opt:['김가루','우유','요구르트']},
+    {title:'달걀 주먹밥 + 우유 + 과일', req:['달걀','쌀'], opt:['김가루','우유']},
+    {title:'시리얼 + 우유 + 과일', req:['시리얼','우유'], opt:[]},
+    {title:'식빵 + 치즈 + 우유 + 과일', req:['식빵','치즈'], opt:['우유']},
+    {title:'유부초밥 + 과일', req:['유부','쌀'], opt:['당근']}
+  ];
+
+  function recipeAvailable(r){
+    const n=names();
+    if(r.req && !r.req.every(x=>n.includes(x))) return false;
+    if(r.any && !r.any.some(x=>n.includes(x))) return false;
+    return true;
+  }
+
+  function mainIngredients(r){
+    const n=names();
+    const arr=[...(r.req||[])];
+    if(r.any){
+      const picked=r.any.find(x=>n.includes(x));
+      if(picked) arr.push(picked);
+    }
+    return arr;
+  }
+
+  function schoolProteinTypes(text){
+    const s=text||'';
+    const set=new Set();
+    if(/소고기|불고기|갈비/.test(s)) set.add('beef');
+    if(/돼지|제육|삼겹/.test(s)) set.add('pork');
+    if(/닭|치킨/.test(s)) set.add('chicken');
+    if(/고등어|갈치|가자미|생선/.test(s)) set.add('fish');
+    if(/오징어|새우/.test(s)) set.add('seafood');
+    if(/두부|콩/.test(s)) set.add('tofu');
+    if(/달걀|계란/.test(s)) set.add('egg');
+    if(/어묵/.test(s)) set.add('fishcake');
+    return set;
+  }
+
+  function chooseMeal(dayIndex, schoolText, history){
+    const schoolProteins=schoolProteinTypes(schoolText);
+    const usedTitles=new Set(history.map(x=>x.title));
+    const usedProteins=history.slice(-2).map(x=>x.protein);
+    const fridgeNames=new Set(ingredients.filter(x=>x.cat==='냉장').map(x=>x.name));
+
+    let pool=recipeLibrary.filter(recipeAvailable);
+    if(!pool.length){
+      return {title:'쌀밥 · 맑은국 · 달걀말이 · 김', used:[], protein:'basic', groups:['grain','protein'], reason:'지금 등록된 재료만으로는 정확한 4찬 구성이 어려워 기본 식사형으로 보여드려요.'};
+    }
+
+    const scored=pool.map(r=>{
+      let score=0;
+      const mains=mainIngredients(r);
+      // Avoid literal repeats across five days.
+      if(usedTitles.has(r.title)) score-=100;
+      // Prefer not to repeat the same protein on consecutive days.
+      if(usedProteins.includes(r.protein)) score-=18;
+      // If school meal is known, avoid repeating that protein at dinner.
+      if(schoolProteins.has(r.protein)) score-=20;
+      // Prefer recipes using perishable refrigerated ingredients.
+      score += mains.filter(x=>fridgeNames.has(x)).length*8;
+      score += (r.opt||[]).filter(x=>has(x)).length*3;
+      // Rotate freezer meals into later days.
+      if(dayIndex>=2 && r.priority==='freezer') score+=7;
+      if(dayIndex<=1 && r.priority==='fridge') score+=7;
+      // Slight deterministic rotation by day so equally-scored recipes vary.
+      score += (recipeLibrary.indexOf(r)+dayIndex*3)%7;
+      return {r,score};
+    }).sort((a,b)=>b.score-a.score);
+
+    const chosen=scored[0].r;
+    const used=mainIngredients(chosen);
+    const extras=(chosen.opt||[]).filter(x=>has(x)).slice(0,2);
+    return {
+      title:chosen.title,
+      used,
+      extras,
+      protein:chosen.protein,
+      reason: schoolText ? '유치원 식사와 겹치지 않게 저녁에서 다른 단백질과 반찬을 이어 붙였어요.' : '집 재료를 먼저 쓰면서 밥·국·반찬이 갖춰지도록 골랐어요.'
+    };
+  }
+
+
+  function detectGroups(text){
+    const s=(text||'');
+    const set=new Set();
+    if(/밥|쌀|흑미|잡곡|초밥|우동|면|빵|시리얼|감자|고구마/.test(s)) set.add('grain');
+    if(/소고기|돼지|닭|고등어|갈치|가자미|오징어|새우|어묵|두부|달걀|계란|유부|떡갈비/.test(s)) set.add('protein');
+    if(/콩나물|숙주|애호박|브로콜리|버섯|당근|양파|깻잎|김치|무침|볶음/.test(s)) set.add('vegetable');
+    if(/우유|요구르트|요거트|치즈/.test(s)) set.add('dairy');
+    if(/사과|배|포도|샤인|복숭아|바나나|귤|오렌지|키위|수박|멜론|과일/.test(s)) set.add('fruit');
+    return set;
+  }
+
+  function reassuranceText(schoolText, meal){
+    const groups=detectGroups(schoolText);
+    (meal.groups||[]).forEach(g=>groups.add(g));
+    const good=[];
+    if(groups.has('grain')) good.push('곡류');
+    if(groups.has('protein')) good.push('단백질');
+    if(groups.has('vegetable')) good.push('채소');
+    if(groups.has('dairy')) good.push('유제품');
+    if(groups.has('fruit')) good.push('과일');
+
+    const missing=[];
+    if(!groups.has('fruit')) missing.push('과일');
+    if(!groups.has('dairy')) missing.push('유제품');
+    if(!groups.has('vegetable')) missing.push('채소');
+
+    let main = good.length>=4
+      ? `오늘 식단 흐름으로 보면 ${good.slice(0,4).join('·')}이 여러 끼에 들어와 있어요.`
+      : `오늘은 ${good.join('·') || '기본 식사'}를 중심으로 채워가고 있어요.`;
+
+    let next = missing.length
+      ? `${missing[0]}만 한 번 더 챙기면 오늘의 균형이 더 좋아져요.`
+      : `오늘 식단은 주요 식품군이 고르게 이어지고 있어요.`;
+
+    return {main,next,missing};
+  }
+
+  function chooseBreakfast(){
+    const available=breakfastLibrary
+      .filter(r=>(r.req||[]).every(x=>has(x)))
+      .map(r=>({r,score:(r.opt||[]).filter(x=>has(x)).length}))
+      .sort((a,b)=>b.score-a.score);
+    return available.length ? available[0].r.title : '밥/빵 + 우유·유제품 + 과일';
+  }
+
+  function freshProduceFor(meal){
+    const perish=['숙주','콩나물','깻잎','두부','애호박','브로콜리','버섯'];
+    return perish.filter(x=>has(x) && !(meal.used||[]).includes(x)).slice(0,2);
+  }
+
+
+  const dishGuides = {
+    '소고기미역국':{
+      time:'약 20분', tools:'냄비 1개',
+      ingredients:['불린 미역 1줌(약 15g)','소고기 국거리 80g','물 700ml','국간장 1작은술','참기름 1/2작은술'],
+      steps:[
+        '마른 미역은 물에 10분 불린 뒤 2~3번 헹구고 물기를 꼭 짜요.',
+        '냄비를 중약불에 올리고 참기름 1/2작은술, 소고기 80g을 넣어 2분 볶아요.',
+        '미역을 넣고 1분 더 볶아요.',
+        '물 700ml를 붓고 센불로 끓여요. 끓기 시작하면 중약불로 줄여 12분 끓여요.',
+        '국간장 1작은술을 넣고 맛을 봐요. 아이용은 싱겁다 싶을 정도면 충분해요.'
+      ]
+    },
+    '감자된장국':{
+      time:'약 15분', tools:'냄비 1개',
+      ingredients:['감자 1개','양파 1/4개','애호박 1/4개(있으면)','물 600ml','된장 1큰술'],
+      steps:[
+        '감자는 1cm 두께로 작게 썰고, 양파·애호박도 비슷한 크기로 썰어요.',
+        '냄비에 물 600ml와 감자를 넣고 센불로 끓여요.',
+        '끓으면 중불로 줄이고 된장 1큰술을 체나 숟가락으로 잘 풀어요.',
+        '양파와 애호박을 넣고 7~8분 더 끓여요.',
+        '감자를 젓가락으로 찔렀을 때 쑥 들어가면 완성이에요.'
+      ]
+    },
+    '두부애호박된장국':{
+      time:'약 15분', tools:'냄비 1개',
+      ingredients:['두부 1/4모','애호박 1/4개','양파 1/4개','물 600ml','된장 1큰술'],
+      steps:[
+        '두부는 1.5cm 네모, 애호박·양파는 한입 크기로 썰어요.',
+        '냄비에 물 600ml를 끓인 뒤 된장 1큰술을 잘 풀어요.',
+        '양파와 애호박을 넣고 중불에서 6분 끓여요.',
+        '두부를 넣고 3분 더 끓여요.',
+        '아이용은 추가 소금 없이 먼저 덜어주세요.'
+      ]
+    },
+    '콩나물국':{
+      time:'약 12분', tools:'냄비 1개',
+      ingredients:['콩나물 2줌(약 150g)','물 700ml','대파 5cm','국간장 1작은술'],
+      steps:[
+        '콩나물은 흐르는 물에 한 번 씻어요.',
+        '냄비에 콩나물과 물 700ml를 같이 넣고 뚜껑을 닫아요.',
+        '센불에서 끓기 시작하면 중불로 줄여 7분 끓여요. 중간에 뚜껑을 열었다 닫았다 하지 마세요.',
+        '대파를 송송 썰어 넣고 1분 더 끓여요.',
+        '국간장 1작은술을 넣고 아이 몫을 먼저 덜어요.'
+      ]
+    },
+    '감자국':{
+      time:'약 15분', tools:'냄비 1개',
+      ingredients:['감자 1개','양파 1/4개','대파 5cm','물 650ml','국간장 1작은술'],
+      steps:[
+        '감자는 0.7~1cm 두께로 썰고 양파도 비슷하게 썰어요.',
+        '냄비에 감자와 물 650ml를 넣고 센불로 끓여요.',
+        '끓으면 중불로 줄여 8분 끓여요.',
+        '양파와 대파를 넣고 3분 더 끓여요.',
+        '국간장 1작은술을 넣고 끝내요.'
+      ]
+    },
+    '두부국':{
+      time:'약 10분', tools:'냄비 1개',
+      ingredients:['두부 1/3모','대파 5cm','물 600ml','국간장 1작은술'],
+      steps:[
+        '두부를 1.5cm 네모로 썰고 대파를 송송 썰어요.',
+        '냄비에 물 600ml를 끓여요.',
+        '끓으면 두부를 넣고 중불에서 5분 끓여요.',
+        '대파와 국간장 1작은술을 넣고 1분 더 끓여요.'
+      ]
+    },
+    '두부된장국':{
+      time:'약 12분', tools:'냄비 1개',
+      ingredients:['두부 1/4모','애호박 1/4개','물 600ml','된장 1큰술','대파 조금'],
+      steps:[
+        '두부와 애호박을 한입 크기로 썰어요.',
+        '냄비에 물 600ml를 끓이고 된장 1큰술을 잘 풀어요.',
+        '애호박을 넣고 중불에서 5분 끓여요.',
+        '두부와 대파를 넣고 3분 더 끓여요.'
+      ]
+    },
+    '미역국':{
+      time:'약 18분', tools:'냄비 1개',
+      ingredients:['불린 미역 1줌','물 700ml','국간장 1작은술','참기름 1/2작은술'],
+      steps:[
+        '마른 미역은 물에 10분 불리고 헹궈 물기를 짜요.',
+        '냄비에 참기름 1/2작은술과 미역을 넣고 중약불에서 1분 볶아요.',
+        '물 700ml를 붓고 센불로 끓여요.',
+        '끓으면 중약불로 줄여 12분 끓이고 국간장 1작은술을 넣어요.'
+      ]
+    },
+    '유부된장국':{
+      time:'약 10분', tools:'냄비 1개',
+      ingredients:['유부 2장','대파 5cm','물 600ml','된장 1큰술'],
+      steps:[
+        '유부는 뜨거운 물을 한 번 끼얹어 기름기를 빼고 1cm 폭으로 썰어요.',
+        '냄비에 물 600ml를 끓이고 된장 1큰술을 풀어요.',
+        '유부와 대파를 넣고 중불에서 4분 끓여요.'
+      ]
+    },
+    '달걀국':{
+      time:'약 8분', tools:'냄비 1개',
+      ingredients:['달걀 1개','대파 5cm','물 500ml','국간장 1/2작은술'],
+      steps:[
+        '달걀 1개를 그릇에 풀고 대파를 송송 썰어요.',
+        '냄비에 물 500ml를 끓여요.',
+        '물이 팔팔 끓으면 달걀물을 한 바퀴 천천히 둘러 붓고 10초 기다려요.',
+        '젓가락으로 한두 번만 저은 뒤 대파와 국간장 1/2작은술을 넣고 불을 꺼요.'
+      ]
+    },
+    '어묵국':{
+      time:'약 12분', tools:'냄비 1개',
+      ingredients:['어묵 2장','대파 5cm','양파 1/4개','물 650ml','국간장 1작은술'],
+      steps:[
+        '어묵은 뜨거운 물을 한 번 끼얹고 아이가 먹기 좋은 크기로 썰어요.',
+        '양파를 얇게 썰고 대파는 송송 썰어요.',
+        '냄비에 물 650ml와 양파를 넣고 5분 끓여요.',
+        '어묵을 넣고 4분 더 끓인 뒤 대파와 국간장 1작은술을 넣어요.'
+      ]
+    },
+    '만두국':{
+      time:'약 12분', tools:'냄비 1개',
+      ingredients:['만두 5~6개','달걀 1개','대파 5cm','물 700ml','국간장 1작은술'],
+      steps:[
+        '냄비에 물 700ml를 끓여요.',
+        '물이 끓으면 만두 5~6개를 넣고 중불에서 7분 끓여요.',
+        '달걀을 풀어 천천히 넣고 20초 기다렸다가 한 번 저어요.',
+        '대파와 국간장 1작은술을 넣고 1분 더 끓여요.'
+      ]
+    },
+    '달걀말이':{
+      time:'약 8분', tools:'프라이팬 1개',
+      ingredients:['달걀 2개','당근 1큰술','대파 1큰술','식용유 1작은술','소금 한 꼬집'],
+      steps:[
+        '달걀 2개를 풀고 잘게 썬 당근·대파를 1큰술씩 넣어요.',
+        '소금은 손가락으로 아주 작은 한 꼬집만 넣어요.',
+        '프라이팬을 약불로 1분 예열한 뒤 식용유 1작은술을 키친타월로 얇게 펴요.',
+        '달걀물 절반을 붓고 바닥이 70% 익으면 한쪽부터 말아요.',
+        '남은 달걀물을 이어 붓고 다시 말아요. 불은 끝까지 약불이에요.',
+        '불을 끄고 1분 식힌 뒤 1.5cm 폭으로 썰어요.'
+      ]
+    },
+    '브로콜리무침':{
+      time:'약 7분', tools:'냄비 1개',
+      ingredients:['브로콜리 1/3송이','참기름 1/2작은술','깨 1작은술','소금 아주 조금'],
+      steps:[
+        '브로콜리를 아이 한입 크기로 작게 잘라요.',
+        '냄비에 물을 끓이고 브로콜리를 넣어 1분 30초 데쳐요.',
+        '찬물에 한 번 헹군 뒤 물기를 충분히 털어요.',
+        '참기름 1/2작은술, 깨 1작은술, 소금 아주 조금을 넣고 버무려요.'
+      ]
+    },
+    '돼지고기숙주볶음':{
+      time:'약 12분', tools:'프라이팬 1개',
+      ingredients:['돼지고기 150g','숙주 2줌','양파 1/4개','간장 1큰술','물 1큰술'],
+      steps:[
+        '양파는 얇게 썰고 숙주는 씻어 물기를 빼요.',
+        '프라이팬을 중불로 1분 예열한 뒤 돼지고기 150g을 넣어 4~5분 볶아요.',
+        '고기 겉면이 모두 익으면 양파를 넣고 2분 볶아요.',
+        '간장 1큰술과 물 1큰술을 넣고 섞어요.',
+        '숙주를 넣고 센불로 1분만 빠르게 볶고 불을 꺼요.'
+      ]
+    },
+    '소불고기':{
+      time:'약 15분', tools:'프라이팬 1개',
+      ingredients:['불고기용 소고기 180g','양파 1/4개','버섯 한 줌','간장 1.5큰술','물 2큰술','올리고당 1작은술'],
+      steps:[
+        '간장 1.5큰술, 물 2큰술, 올리고당 1작은술을 섞어요.',
+        '소고기와 소스를 섞어 5분 두고, 그동안 양파와 버섯을 썰어요.',
+        '프라이팬을 중불로 1분 예열하고 소고기를 넣어 3분 볶아요.',
+        '양파와 버섯을 넣고 4~5분 더 볶아요.',
+        '고기 속까지 갈색으로 익고 국물이 거의 없어지면 끝이에요.'
+      ]
+    },
+    '버섯볶음':{
+      time:'약 7분', tools:'프라이팬 1개',
+      ingredients:['버섯 1팩의 1/2','양파 1/4개','식용유 1작은술','간장 1/2작은술'],
+      steps:[
+        '버섯과 양파를 얇게 썰어요.',
+        '프라이팬을 중불로 예열하고 식용유 1작은술을 둘러요.',
+        '양파를 1분 볶고 버섯을 넣어 3~4분 볶아요.',
+        '간장 1/2작은술을 넣고 30초 더 볶아요.'
+      ]
+    },
+    '돼지고기애호박볶음':{
+      time:'약 12분', tools:'프라이팬 1개',
+      ingredients:['다진 돼지고기 150g','애호박 1/3개','양파 1/4개','간장 1큰술','물 2큰술'],
+      steps:[
+        '애호박은 0.5cm 두께 반달 모양, 양파는 얇게 썰어요.',
+        '프라이팬을 중불로 1분 예열하고 다진 돼지고기를 넣어 4분 볶아요.',
+        '고기 색이 완전히 변하면 양파와 애호박을 넣어 3분 볶아요.',
+        '간장 1큰술과 물 2큰술을 넣고 중약불에서 2분 더 볶아요.',
+        '애호박이 투명해지기 시작하면 불을 꺼요.'
+      ]
+    },
+    '김':{
+      time:'약 1분', tools:'가위',
+      ingredients:['구운 김 1~2장'],
+      steps:['구운 김을 가위로 아이 한입 크기(약 3cm)로 잘라 그릇에 담아요.']
+    },
+    '닭고기간장조림':{
+      time:'약 20분', tools:'프라이팬 또는 냄비 1개',
+      ingredients:['닭고기 200g','감자 1개','당근 1/3개','양파 1/4개','간장 1.5큰술','물 150ml','올리고당 1작은술'],
+      steps:[
+        '닭고기와 감자·당근을 아이 한입 크기로 썰어요.',
+        '팬에 닭고기를 넣고 중불에서 4분 볶아요.',
+        '감자·당근·양파를 넣고 2분 더 볶아요.',
+        '간장 1.5큰술, 물 150ml, 올리고당 1작은술을 넣고 뚜껑을 덮어요.',
+        '중약불에서 10분 끓여요. 감자가 젓가락으로 쉽게 찔리면 완성이에요.'
+      ]
+    },
+    '고등어구이':{
+      time:'약 12분', tools:'프라이팬 또는 에어프라이어',
+      ingredients:['고등어 1토막','식용유 1/2작은술'],
+      steps:[
+        '고등어 표면의 물기를 키친타월로 닦아요.',
+        '프라이팬 사용 시 중약불로 예열하고 식용유를 아주 얇게 둘러요.',
+        '껍질 쪽부터 5분, 뒤집어서 4~5분 익혀요.',
+        '속살이 불투명하게 완전히 익었는지 확인해요.',
+        '아이에게 줄 때는 살을 작게 떼면서 가시를 손으로 한 번 더 확인해요.'
+      ]
+    },
+    '콩나물무침':{
+      time:'약 7분', tools:'냄비 1개',
+      ingredients:['콩나물 2줌','참기름 1/2작은술','깨 1작은술','소금 아주 조금'],
+      steps:[
+        '콩나물을 씻고 끓는 물에 3분 데쳐요.',
+        '체에 받쳐 물기를 충분히 빼요.',
+        '참기름 1/2작은술, 깨 1작은술, 소금 아주 조금을 넣고 가볍게 무쳐요.'
+      ]
+    },
+    '갈치구이':{
+      time:'약 12분', tools:'프라이팬 1개',
+      ingredients:['갈치 1토막','식용유 1작은술'],
+      steps:[
+        '갈치 물기를 키친타월로 닦아요.',
+        '프라이팬을 중약불로 예열하고 식용유 1작은술을 둘러요.',
+        '갈치를 올려 한 면 4~5분씩 익혀요.',
+        '속살이 하얗게 익었는지 확인한 뒤 아이 몫은 뼈와 잔가시를 제거해요.'
+      ]
+    },
+    '애호박볶음':{
+      time:'약 8분', tools:'프라이팬 1개',
+      ingredients:['애호박 1/3개','양파 1/4개','식용유 1작은술','국간장 1/2작은술'],
+      steps:[
+        '애호박은 0.5cm 반달 모양, 양파는 얇게 썰어요.',
+        '프라이팬을 중불로 예열하고 식용유 1작은술을 둘러요.',
+        '양파를 1분 볶고 애호박을 넣어 4분 볶아요.',
+        '국간장 1/2작은술을 넣고 30초 더 볶고 불을 꺼요.'
+      ]
+    },
+    '가자미구이':{
+      time:'약 12분', tools:'프라이팬 또는 에어프라이어',
+      ingredients:['가자미 1토막','식용유 1/2작은술'],
+      steps:[
+        '가자미 물기를 키친타월로 닦아요.',
+        '프라이팬을 중약불로 예열하고 기름을 아주 얇게 둘러요.',
+        '한 면 5분, 뒤집어서 4분 익혀요.',
+        '아이에게 줄 때는 살을 발라 가시가 없는지 확인해요.'
+      ]
+    },
+    '오징어애호박전':{
+      time:'약 15분', tools:'볼 1개 + 프라이팬 1개',
+      ingredients:['오징어 100g','애호박 1/4개','달걀 1개','부침가루 3큰술','물 2큰술'],
+      steps:[
+        '오징어와 애호박을 0.5cm 정도로 아주 잘게 썰어요.',
+        '볼에 달걀 1개, 부침가루 3큰술, 물 2큰술을 넣고 섞어요.',
+        '오징어와 애호박을 넣고 다시 섞어요.',
+        '프라이팬을 중약불로 예열하고 기름을 얇게 둘러요.',
+        '밥숟가락 1큰술씩 떠서 지름 5cm 정도로 작게 부쳐요.',
+        '한 면 2~3분씩 익혀 속까지 완전히 익혀요.'
+      ]
+    },
+    '새우채소볶음':{
+      time:'약 10분', tools:'프라이팬 1개',
+      ingredients:['새우 120g','당근 1/4개','양파 1/4개','간장 1작은술','식용유 1작은술'],
+      steps:[
+        '당근과 양파를 얇고 작게 썰어요.',
+        '팬을 중불로 예열하고 식용유 1작은술을 둘러 새우를 2분 볶아요.',
+        '당근과 양파를 넣고 4분 더 볶아요.',
+        '간장 1작은술을 넣고 30초 볶은 뒤 불을 꺼요.'
+      ]
+    },
+    '두부부침':{
+      time:'약 8분', tools:'프라이팬 1개',
+      ingredients:['두부 1/3모','식용유 1작은술'],
+      steps:[
+        '두부를 1.5cm 두께로 썰고 키친타월로 물기를 눌러 닦아요.',
+        '프라이팬을 중약불로 예열하고 식용유 1작은술을 둘러요.',
+        '두부를 올려 한 면 3분씩 노릇하게 부쳐요.',
+        '아이 몫은 간장 없이 먼저 덜어주세요.'
+      ]
+    },
+    '떡갈비':{
+      time:'약 10분', tools:'프라이팬 또는 에어프라이어',
+      ingredients:['냉동 떡갈비 2~3장'],
+      steps:[
+        '제품 포장지의 조리법이 있으면 그 시간을 가장 먼저 따라요.',
+        '프라이팬이면 중약불에서 앞뒤로 충분히 익혀요.',
+        '가운데를 잘랐을 때 속까지 뜨겁고 완전히 익었는지 확인해요.',
+        '아이용은 1.5~2cm 크기로 잘라주세요.'
+      ]
+    }
+  };
+
+  const videoLibrary = {
+    '달걀말이':{
+      title:'정말 쉬운 달걀말이',
+      channel:'백종원 PAIK JONG WON',
+      url:'https://www.youtube.com/watch?v=T7YJviWhquo',
+      why:'기본 달걀말이 · 과정이 잘 보임 · 초보가 따라가기 쉬움'
+    },
+    '애호박볶음':{
+      title:'애호박볶음',
+      channel:'딸을 위한 레시피 Recipes for daughters',
+      url:'https://www.youtube.com/watch?v=JHxXmjJHTUQ',
+      why:'재료가 단순하고 조리 과정이 단계별로 잘 보임'
+    },
+    '소불고기':{
+      title:'소불고기',
+      channel:'딸을 위한 레시피 Recipes for daughters',
+      url:'https://www.youtube.com/watch?v=0tFQaJ3XeVw',
+      why:'계량이 구체적이고 볶는 순서가 화면으로 잘 보임'
+    }
+  };
+
+  function videoForDish(dish){
+    const key=Object.keys(videoLibrary).find(k=>dish.includes(k));
+    if(key) return {...videoLibrary[key], curated:true};
+    const q=encodeURIComponent(`${dish} 초보 레시피 계량 쉬운 요리`);
+    return {
+      title:`${dish} 쉬운 영상 찾기`,
+      channel:'YouTube 검색',
+      url:`https://www.youtube.com/results?search_query=${q}`,
+      why:'아직 검증 영상이 없는 메뉴예요. 초보용 검색 결과를 열어드려요.',
+      curated:false
+    };
+  }
+
+  function splitDishes(title){
+    return title.split('·').map(x=>x.trim()).filter(Boolean);
+  }
+
+  function recipeHTML(meal){
+    const dishes=splitDishes(meal.title).filter(x=>x!=='쌀밥');
+    const cards=dishes.map(d=>{
+      const key=Object.keys(dishGuides).find(k=>d.includes(k));
+      const guide=key ? dishGuides[key] : {
+        time:'약 10분', tools:'냄비 또는 프라이팬 1개',
+        ingredients:['메뉴에 표시된 재료'],
+        steps:['재료를 아이 한입 크기로 썰어요.','중불에서 속까지 충분히 익혀요.','아이 몫을 먼저 덜고 어른 간은 나중에 더해요.']
+      };
+      const video=videoForDish(d);
+      return `<div class="recipeDish">
+        <div class="recipeDishHead"><b>${d}</b><span>${guide.time}</span></div>
+        <div class="recipeMeta">준비물 · ${guide.tools}</div>
+        <div class="recipeIngredients"><strong>재료</strong> ${guide.ingredients.join(' · ')}</div>
+        <ol>${guide.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+        <a class="videoBtn ${video.curated?'curated':'searchOnly'}" href="${video.url}" target="_blank" rel="noopener">
+          <span class="videoIcon">▶</span>
+          <span><b>${video.curated?'검증 영상으로 따라하기':'유튜브에서 쉬운 영상 찾기'}</b>
+          <small>${video.channel} · ${video.why}</small></span>
+        </a>
+      </div>`;
+    }).join('');
+    return `<details class="recipeBox">
+      <summary>🍳 요리 초보용 레시피 · 영상 보기</summary>
+      <div class="recipeInner">
+        <div class="recipeNote"><b>요리 못해도 따라할 수 있게</b> 양·불 세기·시간까지 적었어요. 기준은 아이 1명 + 어른 1명 정도예요.<br><span class="videoRule">검증된 영상이 있으면 바로 연결하고, 아직 없는 메뉴는 초보용 유튜브 검색으로 연결해요.</span></div>
+        ${cards}
+      </div>
+    </details>`;
+  }
+
+  function weeklyNutrition(days){
+    // Menu-composition estimate only: not an intake/medical measurement.
+    const scores={carb:0,protein:0,fat:0,vitamin:0,mineral:0};
+    days.forEach(d=>{
+      const t=(d.school||'')+' '+(d.meal?.title||'');
+      if(/밥|쌀|흑미|잡곡|면|우동|빵|시리얼|감자|고구마/.test(t)) scores.carb++;
+      if(/소고기|돼지|닭|고등어|갈치|가자미|오징어|새우|어묵|두부|달걀|계란|유부|떡갈비/.test(t)) scores.protein++;
+      if(/고기|돼지|소고기|닭|고등어|갈치|가자미|달걀|두부|유부|우유|요구르트|치즈/.test(t)) scores.fat++;
+      if(/콩나물|숙주|애호박|브로콜리|버섯|당근|양파|깻잎|김치|과일|사과|배|포도|복숭아|바나나|귤|키위/.test(t)) scores.vitamin++;
+      if(/우유|요구르트|치즈|미역|김|멸치|고등어|갈치|가자미|두부|소고기|돼지|달걀/.test(t)) scores.mineral++;
+    });
+    return scores;
+  }
+
+  function weeklyNutritionHTML(days){
+    const s=weeklyNutrition(days);
+    const items=[
+      ['탄수화물','carb','밥·면·감자 등 에너지원'],
+      ['단백질','protein','고기·생선·달걀·두부'],
+      ['지방','fat','식품 속 지방을 포함한 에너지원'],
+      ['비타민','vitamin','채소·과일 중심'],
+      ['무기질','mineral','유제품·해조류·육류·두부 등']
+    ];
+    const rows=items.map(([label,key,desc])=>{
+      const count=Math.min(5,s[key]);
+      const pct=count*20;
+      const status=count>=4?'충분히 자주':count>=3?'대체로 잘':'조금 더 챙기기';
+      return `<div class="nutriRow">
+        <div class="nutriTop"><b>${label}</b><span>${count}/5일 · ${status}</span></div>
+        <div class="nutriTrack"><div class="nutriFill" style="width:${pct}%"></div></div>
+        <div class="nutriDesc">${desc}</div>
+      </div>`;
+    }).join('');
+    return `<div class="weeklyCard">
+      <div class="weeklyEyebrow">THIS WEEK · 5대 영양소</div>
+      <div class="weeklyTitle">이번 주, 아이의 식사가 이렇게 채워지고 있어요.</div>
+      <div class="weeklySub">메뉴에 포함된 식품군을 기준으로 본 <b>5일 식단 구성 흐름</b>이에요. 실제 섭취량을 입력하기 전이라 정확한 영양섭취율은 아니에요.</div>
+      ${rows}
+      <div class="weeklyReassure"><b>이번 주, 충분히 잘 챙겨가고 있어요.</b><br>비어 있는 항목만 다음 식사에서 가볍게 이어주면 돼요.</div>
+    </div>`;
+  }
+
+  function mealCard(label, dateLabel, schoolText, meal, isTomorrow=false){
+    const produce=freshProduceFor(meal);
+    const schoolBlock = schoolText
+      ? `<div class="row"><div class="label">🏫 유치원</div><div class="food">${schoolText.replace(/\n/g,'<br>')}</div></div>`
+      : `<div class="row"><div class="label">🏫 유치원</div><div class="food"><span class="missingMeal">식단 미등록</span><br><span class="muted">지금은 집 재료를 중심으로 추천하고 있어요.</span></div></div>`;
+    return `
+      <div class="section day">
+        <div class="dayhead ${isTomorrow?'tomorrow':'today'}">
+          <div><small class="muted">${label}</small> <strong>${dateLabel}</strong></div>
+          <small>${schoolText?'유치원 + 집 재료 반영':'집 재료 중심 추천'}</small>
+        </div>
+        ${isTomorrow?`<div class="row"><div class="label">🌞 아침</div><div class="food"><strong>${chooseBreakfast()}</strong></div></div>`:''}
+        ${schoolBlock}
+        <div class="row"><div class="label">🏠 저녁</div><div class="food"><strong>${meal.title}</strong>
+          ${produce.length?`<br><span class="muted">${produce.join(' · ')}도 먼저 활용하기 좋아요.</span>`:''}
+          ${meal.used.length?`<br><span class="ingredientUsed">🏠 ${meal.used.map(ingredientLabel).join(' · ')} 활용</span>`:''}
+          <br><span class="muted">${meal.reason}</span>
+        </div></div>
+        ${recipeHTML(meal)}
+        ${(()=>{
+          const r=reassuranceText(schoolText,meal);
+          return `<div class="reassureBox">
+            <div class="reassureEyebrow">TODAY'S BALANCE</div>
+            <div class="reassureTitle">오늘의 균형</div>
+            <div class="reassureBody">${r.main}<br>${r.next.replace('오늘은 이 정도면 충분해요.','오늘의 식사 균형은 여기까지 잘 이어졌어요.')}</div>
+          </div>`;
+        })()}
+      </div>`;
+  }
+
+  function generatePlans(){
+    if(!document.getElementById('todayPlan')) return;
+    const schoolToday=(schoolMeals.today||'').trim();
+    const schoolTomorrow=(schoolMeals.tomorrow||'').trim();
+    const history=[];
+
+    const today=chooseMeal(0,schoolToday,history); history.push(today);
+    const tomorrow=chooseMeal(1,schoolTomorrow,history); history.push(tomorrow);
+
+    const duplicateNames=[...new Set(names().filter((n,i,a)=>a.indexOf(n)!==i))];
+    document.getElementById('planNotice').innerHTML =
+      (duplicateNames.length
+        ? `<div style="margin-bottom:8px"><b>같은 재료가 여러 보관함에 있어요:</b> ${duplicateNames.map(n=>ingredientLabel(n)).join(' · ')}</div>`
+        : '') +
+      ((!schoolToday && !schoolTomorrow)
+      ? `유치원 식단이 아직 없어서 <b>현재 등록된 ${ingredients.length}개 집 재료</b>를 기준으로 메뉴를 짰어요. 식단을 넣으면 저녁 조합을 다시 계산해요.`
+      : '저장한 유치원 식단과 우리집 재료를 함께 보고 메뉴를 다시 계산했어요.');
+
+    document.getElementById('todayPlan').innerHTML=mealCard('TODAY · 상세','오늘',schoolToday,today,false);
+    document.getElementById('tomorrowPlan').innerHTML=mealCard('TOMORROW · 상세','내일',schoolTomorrow,tomorrow,true);
+
+    const future=[];
+    for(let i=0;i<3;i++){
+      const m=chooseMeal(i+2,'',history);
+      history.push(m);
+      future.push(m);
+    }
+    document.getElementById('futurePlans').innerHTML=future.map((m,i)=>`
+      <div class="futureRow">
+        <div class="futureDate"><strong>D+${i+2}</strong><span>${['모레','3일 뒤','4일 뒤'][i]}</span></div>
+        <div><strong>${m.title}</strong>
+        <div class="muted">${m.used.length?'🏠 '+m.used.map(ingredientLabel).join(' · ')+' 활용':'남은 재료에 맞춰 조정'}</div></div>
+      </div>`).join('');
+
+    const weekDays=[
+      {school:schoolToday,meal:today},
+      {school:schoolTomorrow,meal:tomorrow},
+      {school:'',meal:future[0]},
+      {school:'',meal:future[1]},
+      {school:'',meal:future[2]}
+    ];
+    const weeklyEl=document.getElementById('weeklyNutrition');
+    if(weeklyEl) weeklyEl.innerHTML=weeklyNutritionHTML(weekDays);
+
+    const fridge=ingredients.filter(x=>x.cat==='냉장').map(x=>x.name);
+    const frozen=ingredients.filter(x=>x.cat==='냉동').map(x=>x.name);
+    const pantry=ingredients.filter(x=>x.cat==='상온').map(x=>x.name);
+    const fast=['두부','숙주','콩나물','깻잎','애호박','브로콜리','버섯'].filter(x=>fridge.includes(x));
+    const otherFridge=fridge.filter(x=>!fast.includes(x));
+    const consume=[];
+    if(fast.length) consume.push(`<span><b>먼저</b> ${fast.slice(0,6).join(' · ')}</span>`);
+    if(otherFridge.length) consume.push(`<span><b>다음</b> ${otherFridge.slice(0,6).join(' · ')}</span>`);
+    if(frozen.length) consume.push(`<span><b>천천히</b> ${frozen.slice(0,6).join(' · ')}</span>`);
+    document.getElementById('consumeOrder').innerHTML=consume.join('') || '<span>재료를 넣으면 소진 순서를 보여드려요.</span>';
+
+    document.getElementById('flowSummary').textContent =
+      `현재 ${ingredients.length}개 재료로 5일 메뉴를 겹치지 않게 구성 · ${schoolToday||schoolTomorrow?'유치원 식단도 반영':'유치원 식단 미등록'}`;
+    document.getElementById('shoppingSummary').textContent =
+      ingredients.length>=8 ? '집 재료가 충분해요. 과일·우유처럼 실제로 없는 것만 확인하면 돼요.' : '식단을 확정한 뒤 없는 재료만 최소로 장봐요.';
+  }
+
+  render();
+  renderPicker();
+  generatePlans();
+</script>
+
+<div id="testerWelcome" class="testerWelcome" style="display:none">
+  <div class="testerSheet">
+    <div class="testerBadge">FAMILY TEST · v1</div>
+    <h2>우리 아이 식사,<br>한번 같이 정리해볼까요?</h2>
+    <p>요리를 잘하지 않아도 괜찮아요. 아이 정보와 유치원 식단, 집에 있는 재료만 알려주면 이번 주 식사를 함께 정리해드려요.</p>
+    <div class="testerSteps">
+      <div><b>1</b><span>아이 정보 입력</span></div>
+      <div><b>2</b><span>유치원 식단 입력</span></div>
+      <div><b>3</b><span>집에 있는 재료 선택</span></div>
+      <div><b>4</b><span>식사 플랜 확인</span></div>
+    </div>
+    <div class="testerPrivacy">아이 이름은 입력하지 않아도 돼요. 이 테스트 버전의 입력 내용은 현재 사용 중인 기기에 저장됩니다.</div>
+    <button id="startFamilyTest" class="testerStart">시작하기</button>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  const key='mealnote.familytest.welcome.v1';
+  const welcome=document.getElementById('testerWelcome');
+  const btn=document.getElementById('startFamilyTest');
+  if(welcome && !localStorage.getItem(key)) welcome.style.display='flex';
+  if(btn) btn.addEventListener('click',function(){
+    localStorage.setItem(key,'1');
+    welcome.style.display='none';
+  });
+})();
+</script>
+
+</body>
+</html>
