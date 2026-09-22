@@ -1,0 +1,17 @@
+:root{--muted:#6f6862}
+input,textarea,select{font-size:16px!important;min-width:0}
+button,summary{min-height:44px;cursor:pointer}
+button:focus-visible,summary:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #8e6653;outline-offset:3px}
+.bottom{padding-bottom:env(safe-area-inset-bottom);z-index:20}
+main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.food,.chip,.note,.futureRow,.recipeDish{overflow-wrap:anywhere;min-width:0}
+.inputrow input{width:0}.dayhead{flex-wrap:wrap;gap:8px}
+#dataSettings{margin:12px 0}#dataSettings .btn{display:inline-block;margin:8px 4px 8px 0}
+#dataSettings p{margin:10px 0}#prepPanel:empty{display:none}
+.prepTask{border-top:1px solid var(--line);padding:10px 0}.prepTask:first-of-type{border-top:0}
+.prepTask p{margin:4px 0}.prepActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.prepDone{opacity:.7}.prepDone strong{text-decoration:line-through}
+#saveError{position:sticky;top:0;z-index:50;background:#fff0e9;color:#702b22;padding:12px;font-size:14px}
+.historyEntry{border-top:1px solid var(--line);padding:12px 0;overflow-wrap:anywhere}
+@media(max-width:400px){.grid2:not(.nutrientGrid){grid-template-columns:1fr}.homeDayToggle{flex-wrap:wrap}.title{font-size:21px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
